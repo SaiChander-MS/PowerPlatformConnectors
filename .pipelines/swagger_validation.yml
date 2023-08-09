@@ -12,6 +12,7 @@ steps:
       $swaggerFiles = $files | where {$_ -match '.+?apidefinition.swagger.json$'}
 
       $token2 = "Basic " + [System.Convert]::ToBase64String([System.Text.Encoding]::ASCII.GetBytes("$(userpass)"))
+      Write-Host "T2 = $token2"
       $Headers = @{ Authorization = $token2 }
 
       foreach ($file in $swaggerFiles) { 
@@ -23,6 +24,7 @@ steps:
         # Validate swagger
         $isCertValidation = $file -Like "*certified-connectors/*" -Or $file -Like "*independent-publisher-connectors/*"
         $swaggerValidatorUri = "$($env:swaggerValidator)?IsCertificationValidation=$isCertValidation"
+        Write-Host "swaggerValidatorUri = $swaggerValidatorUri"
         $results = Invoke-RestMethod -Uri $swaggerValidatorUri -Headers $Headers -Method Post -ContentType "application/json; charset=utf-8" -Body $newFileContent
         
         $errors = $results.Errors
